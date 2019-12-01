@@ -1,54 +1,52 @@
 defmodule Day1 do
   @doc """
-      iex> Day1.fuel(12)
+      iex> Day1.part1(12)
       2
 
-      iex> Day1.fuel(14)
+      iex> Day1.part1(14)
       2
 
-      iex> Day1.fuel(1969)
+      iex> Day1.part1(1969)
       654
 
-      iex> Day1.fuel(100756)
+      iex> Day1.part1(100756)
       33583
   """
-  def fuel(mass) do
-    max(0, floor(mass / 3) - 2)
+  def part1(input \\ input()) do
+    input
+    |> List.wrap()
+    |> Enum.map(&part1_fuel/1)
+    |> Enum.sum()
   end
 
   @doc """
-      iex> Day1.part2_fuel(14)
+      iex> Day1.part2(14)
       2
 
-      iex> Day1.part2_fuel(1969)
+      iex> Day1.part2(1969)
       966
 
-      iex> Day1.part2_fuel(100756)
+      iex> Day1.part2(100756)
       50346
   """
-  def part2_fuel(mass) when mass <= 0, do: 0
+  def part2(input \\ input()) do
+    input
+    |> List.wrap()
+    |> Enum.map(&part2_fuel/1)
+    |> Enum.sum()
+  end
 
-  def part2_fuel(mass) do
-    fuel = fuel(mass)
+  defp part1_fuel(mass) do
+    max(0, floor(mass / 3) - 2)
+  end
+
+  defp part2_fuel(mass) when mass <= 0, do: 0
+
+  defp part2_fuel(mass) do
+    fuel = part1_fuel(mass)
     fuel_fuel = part2_fuel(fuel)
 
     fuel + fuel_fuel
-  end
-
-  def part1 do
-    input()
-    |> Enum.map(fn mass ->
-      fuel(mass)
-    end)
-    |> Enum.sum()
-  end
-
-  def part2 do
-    input()
-    |> Enum.map(fn mass ->
-      part2_fuel(mass)
-    end)
-    |> Enum.sum()
   end
 
   defp input do
