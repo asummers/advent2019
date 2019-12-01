@@ -53,12 +53,9 @@ defmodule Day1 do
     |> Path.join("day1.txt")
     |> File.stream!()
     |> Enum.map(fn line ->
-      {mass, ""} =
-        line
-        |> String.trim()
-        |> Integer.parse()
-
-      mass
+      line
+      |> String.trim()
+      |> String.to_integer()
     end)
   end
 end
