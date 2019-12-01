@@ -1,37 +1,35 @@
 defmodule Day1 do
   @doc """
-      iex> Day1.part1(12)
+      iex> Day1.part1([12])
       2
 
-      iex> Day1.part1(14)
+      iex> Day1.part1([14])
       2
 
-      iex> Day1.part1(1969)
+      iex> Day1.part1([1969])
       654
 
-      iex> Day1.part1(100756)
+      iex> Day1.part1([100756])
       33583
   """
   def part1(input \\ input()) do
     input
-    |> List.wrap()
     |> Enum.map(&part1_fuel/1)
     |> Enum.sum()
   end
 
   @doc """
-      iex> Day1.part2(14)
+      iex> Day1.part2([14])
       2
 
-      iex> Day1.part2(1969)
+      iex> Day1.part2([1969])
       966
 
-      iex> Day1.part2(100756)
+      iex> Day1.part2([100756])
       50346
   """
   def part2(input \\ input()) do
     input
-    |> List.wrap()
     |> Enum.map(&part2_fuel/1)
     |> Enum.sum()
   end
