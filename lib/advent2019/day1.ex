@@ -46,12 +46,6 @@ defmodule Advent2019.Day1 do
   end
 
   defp input do
-    "day1.txt"
-    |> Advent2019.Utils.priv_file_lines()
-    |> Stream.map(fn line ->
-      line
-      |> String.trim()
-      |> String.to_integer()
-    end)
+    Advent2019.Utils.priv_file_lines_as_integers("day1.txt")
   end
 end
