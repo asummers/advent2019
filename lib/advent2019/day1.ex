@@ -14,7 +14,7 @@ defmodule Advent2019.Day1 do
   """
   def part1(input \\ input()) do
     input
-    |> Enum.map(&part1_fuel/1)
+    |> Stream.map(&part1_fuel/1)
     |> Enum.sum()
   end
 
@@ -30,7 +30,7 @@ defmodule Advent2019.Day1 do
   """
   def part2(input \\ input()) do
     input
-    |> Enum.map(&part2_fuel(&1, 0))
+    |> Stream.map(&part2_fuel(&1, 0))
     |> Enum.sum()
   end
 
