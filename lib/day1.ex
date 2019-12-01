@@ -52,7 +52,7 @@ defmodule Day1 do
     |> :code.priv_dir()
     |> Path.join("day1.txt")
     |> File.stream!()
-    |> Enum.map(fn line ->
+    |> Stream.map(fn line ->
       line
       |> String.trim()
       |> String.to_integer()
