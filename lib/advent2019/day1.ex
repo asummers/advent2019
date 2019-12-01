@@ -1,15 +1,15 @@
-defmodule Day1 do
+defmodule Advent2019.Day1 do
   @doc """
-      iex> Day1.part1([12])
+      iex> Advent2019.Day1.part1([12])
       2
 
-      iex> Day1.part1([14])
+      iex> Advent2019.Day1.part1([14])
       2
 
-      iex> Day1.part1([1969])
+      iex> Advent2019.Day1.part1([1969])
       654
 
-      iex> Day1.part1([100756])
+      iex> Advent2019.Day1.part1([100756])
       33583
   """
   def part1(input \\ input()) do
@@ -19,13 +19,13 @@ defmodule Day1 do
   end
 
   @doc """
-      iex> Day1.part2([14])
+      iex> Advent2019.Day1.part2([14])
       2
 
-      iex> Day1.part2([1969])
+      iex> Advent2019.Day1.part2([1969])
       966
 
-      iex> Day1.part2([100756])
+      iex> Advent2019.Day1.part2([100756])
       50346
   """
   def part2(input \\ input()) do
