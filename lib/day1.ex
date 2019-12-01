@@ -35,7 +35,7 @@ defmodule Day1 do
   end
 
   defp part1_fuel(mass) do
-    max(0, floor(mass / 3) - 2)
+    max(0, div(mass, 3) - 2)
   end
 
   defp part2_fuel(mass) when mass <= 0, do: 0
