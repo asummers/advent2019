@@ -30,16 +30,12 @@ defmodule Day1 do
   """
   def part2(input \\ input()) do
     input
-    |> Enum.map(&part2_fuel/1)
+    |> Enum.map(&part2_fuel(&1, 0))
     |> Enum.sum()
   end
 
   defp part1_fuel(mass) do
     max(0, div(mass, 3) - 2)
-  end
-
-  defp part2_fuel(mass) do
-    part2_fuel(mass, 0)
   end
 
   defp part2_fuel(mass, total) when mass <= 0, do: total
