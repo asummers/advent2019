@@ -46,10 +46,8 @@ defmodule Advent2019.Day1 do
   end
 
   defp input do
-    :advent2019
-    |> :code.priv_dir()
-    |> Path.join("day1.txt")
-    |> File.stream!()
+    "day1.txt"
+    |> Advent2019.Utils.priv_file_lines()
     |> Stream.map(fn line ->
       line
       |> String.trim()
