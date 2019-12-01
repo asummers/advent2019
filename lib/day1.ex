@@ -38,13 +38,15 @@ defmodule Day1 do
     max(0, div(mass, 3) - 2)
   end
 
-  defp part2_fuel(mass) when mass <= 0, do: 0
-
   defp part2_fuel(mass) do
-    fuel = part1_fuel(mass)
-    fuel_fuel = part2_fuel(fuel)
+    part2_fuel(mass, 0)
+  end
 
-    fuel + fuel_fuel
+  defp part2_fuel(mass, total) when mass <= 0, do: total
+
+  defp part2_fuel(mass, total) do
+    fuel = part1_fuel(mass)
+    part2_fuel(fuel, total + fuel)
   end
 
   defp input do
