@@ -12,15 +12,11 @@ defmodule Advent2019.Day3 do
   def part1([wire1_input, wire2_input] \\ input()) do
     wire1_points =
       wire1_input
-      |> String.trim()
-      |> String.split(",")
       |> wire_points()
       |> MapSet.new(fn {point, _distance_traveled} -> point end)
 
     wire2_points =
       wire2_input
-      |> String.trim()
-      |> String.split(",")
       |> wire_points()
       |> MapSet.new(fn {point, _distance_traveled} -> point end)
 
@@ -42,15 +38,11 @@ defmodule Advent2019.Day3 do
   def part2([wire1_input, wire2_input] \\ input()) do
     wire1_points_and_distances =
       wire1_input
-      |> String.trim()
-      |> String.split(",")
       |> wire_points()
       |> Map.new()
 
     wire2_points_and_distances =
       wire2_input
-      |> String.trim()
-      |> String.split(",")
       |> wire_points()
       |> Map.new()
 
@@ -75,9 +67,12 @@ defmodule Advent2019.Day3 do
     |> Enum.min()
   end
 
-  defp wire_points(directions) do
+  defp wire_points(input) do
     {_, points, _} =
-      Enum.reduce(directions, {{0, 0}, [], 0}, fn direction, {{previous_x, previous_y}, points, distance_traveled} ->
+      input
+      |> String.trim()
+      |> String.split(",")
+      |> Enum.reduce({{0, 0}, [], 0}, fn direction, {{previous_x, previous_y}, points, distance_traveled} ->
         case direction do
           "R" <> distance ->
             distance = String.to_integer(distance)
