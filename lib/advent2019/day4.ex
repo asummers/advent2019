@@ -1,5 +1,4 @@
 defmodule Advent2019.Day4 do
-
   def part1(input \\ input()) do
     input
     |> Enum.filter(&monotonic?/1)
@@ -51,7 +50,8 @@ defmodule Advent2019.Day4 do
     {previous_digits, smaller_group?} =
       n
       |> Integer.digits()
-      |> Enum.reduce({[-1], false}, fn digit, {previous_digits = [previous_digit | _], smaller_group?} ->
+      |> Enum.reduce({[-1], false}, fn digit,
+                                       {previous_digits = [previous_digit | _], smaller_group?} ->
         if digit == previous_digit do
           {[digit | previous_digits], smaller_group?}
         else
@@ -67,6 +67,6 @@ defmodule Advent2019.Day4 do
   end
 
   defp input do
-    138307..654504
+    138_307..654_504
   end
 end

@@ -72,14 +72,17 @@ defmodule Advent2019.Day3 do
       input
       |> String.trim()
       |> String.split(",")
-      |> Enum.reduce({{0, 0}, [], 0}, fn direction, {{previous_x, previous_y}, points, distance_traveled} ->
+      |> Enum.reduce({{0, 0}, [], 0}, fn direction,
+                                         {{previous_x, previous_y}, points, distance_traveled} ->
         case direction do
           "R" <> distance ->
             distance = String.to_integer(distance)
 
             new_points =
               points ++
-                Enum.map(0..distance, fn n -> {{previous_x + n, previous_y}, distance_traveled + n} end)
+                Enum.map(0..distance, fn n ->
+                  {{previous_x + n, previous_y}, distance_traveled + n}
+                end)
 
             {{previous_x + distance, previous_y}, new_points, distance_traveled + distance}
 
@@ -88,7 +91,9 @@ defmodule Advent2019.Day3 do
 
             new_points =
               points ++
-                Enum.map(0..distance, fn n -> {{previous_x - n, previous_y}, distance_traveled + n} end)
+                Enum.map(0..distance, fn n ->
+                  {{previous_x - n, previous_y}, distance_traveled + n}
+                end)
 
             {{previous_x - distance, previous_y}, new_points, distance_traveled + distance}
 
@@ -97,7 +102,9 @@ defmodule Advent2019.Day3 do
 
             new_points =
               points ++
-                Enum.map(0..distance, fn n -> {{previous_x, previous_y + n}, distance_traveled + n} end)
+                Enum.map(0..distance, fn n ->
+                  {{previous_x, previous_y + n}, distance_traveled + n}
+                end)
 
             {{previous_x, previous_y + distance}, new_points, distance_traveled + distance}
 
@@ -106,7 +113,9 @@ defmodule Advent2019.Day3 do
 
             new_points =
               points ++
-                Enum.map(0..distance, fn n -> {{previous_x, previous_y - n}, distance_traveled + n} end)
+                Enum.map(0..distance, fn n ->
+                  {{previous_x, previous_y - n}, distance_traveled + n}
+                end)
 
             {{previous_x, previous_y - distance}, new_points, distance_traveled + distance}
         end
