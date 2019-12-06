@@ -4,7 +4,6 @@ defmodule Advent2019.Day6 do
 
     graph
     |> :digraph.vertices()
-    |> Enum.sort()
     |> Enum.map(fn vertex ->
       case :digraph.get_path(graph, "COM", vertex) do
         false ->
@@ -17,8 +16,22 @@ defmodule Advent2019.Day6 do
     |> Enum.sum()
   end
 
+  def part2(input \\ input()) do
+    {_, graph} = graph(input)
+
+    path_length =
+      graph
+      |> :digraph.get_path("YOU", "SAN")
+      |> Enum.count()
+
+    path_length - 3
+  end
+
   defp graph(input) do
-    Enum.reduce(input, {:digraph.new(), :digraph.new()}, fn line, {directed_graph, undirected_graph} ->
+    directed_graph = :digraph.new()
+    undirected_graph = :digraph.new()
+
+    Enum.each(input, fn line ->
       [from, to] =
         line
         |> String.trim()
@@ -32,20 +45,9 @@ defmodule Advent2019.Day6 do
       :digraph.add_vertex(undirected_graph, to)
       :digraph.add_edge(undirected_graph, from, to)
       :digraph.add_edge(undirected_graph, to, from)
-
-      {directed_graph, undirected_graph}
     end)
-  end
 
-  def part2(input \\ input()) do
-    {_, graph} = graph(input)
-
-    path_length =
-      graph
-      |> :digraph.get_path("YOU", "SAN")
-      |> Enum.count()
-
-    path_length - 3
+    {directed_graph, undirected_graph}
   end
 
   defp input() do
