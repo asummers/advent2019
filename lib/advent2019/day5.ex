@@ -1,0 +1,30 @@
+defmodule Advent2019.Day5 do
+  def part1(input \\ input()) do
+    {_, [diagnostic_code | _]} =
+      input
+      |> Enum.with_index()
+      |> Map.new(fn {v, k} -> {k, v} end)
+      |> Advent2019.Opcode.process_opcode(0)
+
+    diagnostic_code
+  end
+
+  def part2(input \\ input()) do
+    {_, [diagnostic_code | _]} =
+      input
+      |> Enum.with_index()
+      |> Map.new(fn {v, k} -> {k, v} end)
+      |> Advent2019.Opcode.process_opcode(0, 5)
+
+    diagnostic_code
+  end
+
+  defp input() do
+    "day5.txt"
+    |> Advent2019.Utils.priv_file()
+    |> String.trim()
+    |> String.trim_trailing("-")
+    |> String.split(",")
+    |> Enum.map(&String.to_integer/1)
+  end
+end

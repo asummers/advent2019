@@ -41,15 +41,15 @@ defmodule Advent2019.Day3 do
       |> wire_points()
       |> Map.new()
 
-    wire2_points_and_distances =
-      wire2_input
-      |> wire_points()
-      |> Map.new()
-
     wire1_points =
       wire1_points_and_distances
       |> Map.keys()
       |> MapSet.new()
+
+    wire2_points_and_distances =
+      wire2_input
+      |> wire_points()
+      |> Map.new()
 
     wire2_points =
       wire2_points_and_distances
@@ -77,47 +77,47 @@ defmodule Advent2019.Day3 do
         case direction do
           "R" <> distance ->
             distance = String.to_integer(distance)
+            new_previous = {previous_x + distance, previous_y}
 
             new_points =
-              points ++
-                Enum.map(0..distance, fn n ->
-                  {{previous_x + n, previous_y}, distance_traveled + n}
-                end)
+              Enum.map(0..distance, fn n ->
+                {{previous_x + n, previous_y}, distance_traveled + n}
+              end)
 
-            {{previous_x + distance, previous_y}, new_points, distance_traveled + distance}
+            {new_previous, points ++ new_points, distance_traveled + distance}
 
           "L" <> distance ->
             distance = String.to_integer(distance)
+            new_previous = {previous_x - distance, previous_y}
 
             new_points =
-              points ++
-                Enum.map(0..distance, fn n ->
-                  {{previous_x - n, previous_y}, distance_traveled + n}
-                end)
+              Enum.map(0..distance, fn n ->
+                {{previous_x - n, previous_y}, distance_traveled + n}
+              end)
 
-            {{previous_x - distance, previous_y}, new_points, distance_traveled + distance}
+            {new_previous, points ++ new_points, distance_traveled + distance}
 
           "U" <> distance ->
             distance = String.to_integer(distance)
+            new_previous = {previous_x, previous_y + distance}
 
             new_points =
-              points ++
-                Enum.map(0..distance, fn n ->
-                  {{previous_x, previous_y + n}, distance_traveled + n}
-                end)
+              Enum.map(0..distance, fn n ->
+                {{previous_x, previous_y + n}, distance_traveled + n}
+              end)
 
-            {{previous_x, previous_y + distance}, new_points, distance_traveled + distance}
+            {new_previous, points ++ new_points, distance_traveled + distance}
 
           "D" <> distance ->
             distance = String.to_integer(distance)
+            new_previous = {previous_x, previous_y - distance}
 
             new_points =
-              points ++
-                Enum.map(0..distance, fn n ->
-                  {{previous_x, previous_y - n}, distance_traveled + n}
-                end)
+              Enum.map(0..distance, fn n ->
+                {{previous_x, previous_y - n}, distance_traveled + n}
+              end)
 
-            {{previous_x, previous_y - distance}, new_points, distance_traveled + distance}
+            {new_previous, points ++ new_points, distance_traveled + distance}
         end
       end)
 

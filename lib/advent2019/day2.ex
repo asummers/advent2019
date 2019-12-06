@@ -16,34 +16,13 @@ defmodule Advent2019.Day2 do
       3500
   """
   def part1(input \\ input(12, 2)) do
-    input
-    |> Enum.chunk_every(4)
-    |> Enum.with_index()
-    |> Map.new(fn {v, k} -> {k, v} end)
-    |> process_opcode(0)
-  end
+    {result, _} =
+      input
+      |> Enum.with_index()
+      |> Map.new(fn {v, k} -> {k, v} end)
+      |> Advent2019.Opcode.process_opcode(0)
 
-  defp process_opcode(result, instruction_pointer) do
-    case result[instruction_pointer] do
-      [1 = _add, position_1, position_2, destination] ->
-        value_1 = find(result, position_1)
-        value_2 = find(result, position_2)
-
-        result
-        |> place(destination, value_1 + value_2)
-        |> process_opcode(instruction_pointer + 1)
-
-      [2 = _multiply, position_1, position_2, destination] ->
-        value_1 = find(result, position_1)
-        value_2 = find(result, position_2)
-
-        result
-        |> place(destination, value_1 * value_2)
-        |> process_opcode(instruction_pointer + 1)
-
-      _ ->
-        Enum.at(result[0], 0)
-    end
+    result
   end
 
   def part2() do
@@ -55,25 +34,6 @@ defmodule Advent2019.Day2 do
 
     {{noun, verb}, _} = Enum.find(result, fn {_, n} -> n == 19_690_720 end)
     100 * noun + verb
-  end
-
-  defp decompose(position) do
-    {div(position, 4), rem(position, 4)}
-  end
-
-  defp find(result, position) do
-    {position_bucket, position_offset} = decompose(position)
-    Enum.at(result[position_bucket], position_offset)
-  end
-
-  defp place(result, position, value) do
-    {position_bucket, position_offset} = decompose(position)
-
-    Map.put(
-      result,
-      position_bucket,
-      List.replace_at(result[position_bucket], position_offset, value)
-    )
   end
 
   defp input(noun, verb) do

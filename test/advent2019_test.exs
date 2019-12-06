@@ -5,4 +5,5 @@ defmodule Advent2019Test do
   doctest Advent2019.Day2
   doctest Advent2019.Day3
   doctest Advent2019.Day4
+  doctest Advent2019.Day5
 end
