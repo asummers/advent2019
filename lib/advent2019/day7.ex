@@ -18,17 +18,16 @@ defmodule Advent2019.Day7 do
     max
   end
 
-  defp phases(min, max) do
+  def phases(min, max) do
     for phase1 <- min..max,
         phase2 <- min..max,
         phase3 <- min..max,
         phase4 <- min..max,
-        phase5 <- min..max do
-      [phase1, phase2, phase3, phase4, phase5]
+        phase5 <- min..max,
+        phases = [phase1, phase2, phase3, phase4, phase5],
+        Enum.count(Enum.uniq(phases)) == Enum.count(phases) do
+      phases
     end
-    |> Enum.filter(fn {phases, _} ->
-      phases |> Enum.uniq() |> Enum.sort() == Enum.sort(phases)
-    end)
   end
 
   def process_phases(phases, input) do
