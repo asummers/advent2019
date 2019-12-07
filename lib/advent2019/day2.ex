@@ -18,8 +18,7 @@ defmodule Advent2019.Day2 do
   def part1(input \\ input(12, 2)) do
     {result, _} =
       input
-      |> Enum.with_index()
-      |> Map.new(fn {v, k} -> {k, v} end)
+      |> Advent2019.Utils.to_indexed_map()
       |> Advent2019.Opcode.process_opcode(0)
 
     result

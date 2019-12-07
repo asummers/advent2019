@@ -21,10 +21,11 @@ defmodule Advent2019.Opcode do
 
       [3 = _store, _, _, _] ->
         destination = Map.get(result, instruction_pointer + 1)
+        {input, remaining_input} = input(input)
 
         result
         |> Map.put(destination, input)
-        |> process_opcode(instruction_pointer + 2, input, output)
+        |> process_opcode(instruction_pointer + 2, remaining_input, output)
 
       [4 = _output, _, _, param1_mode] ->
         value = value(result, instruction_pointer + 1, param1_mode)
@@ -85,6 +86,14 @@ defmodule Advent2019.Opcode do
       [99, _, _, _] ->
         {Map.get(result, 0), output}
     end
+  end
+
+  defp input([first, second]) do
+    {first, second}
+  end
+
+  defp input(first) do
+    {first, first}
   end
 
   defp value(result, position, 0 = _position_mode) do

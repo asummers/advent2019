@@ -1,4 +1,10 @@
 defmodule Advent2019.Utils do
+  def to_indexed_map(enum) do
+    enum
+    |> Enum.with_index()
+    |> Map.new(fn {v, k} -> {k, v} end)
+  end
+
   def priv_file(file) do
     :advent2019
     |> :code.priv_dir()
