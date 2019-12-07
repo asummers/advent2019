@@ -48,9 +48,12 @@ defmodule Advent2019.Day7 do
     |> Enum.map(fn phases ->
       Stream.repeatedly(fn -> phases end)
       |> Enum.reduce_while({0, %{}}, fn phases, {previous_output, state} ->
-        {output, state} = process_phase(phases, initial, {previous_output, state})
+        {output, state} =
+          Enum.reduce(phases, {previous_output, state}, fn phase, {previous_output, state} ->
+            process_phase(phase, initial, previous_output, state)
+          end)
 
-        if Enum.any?(Map.values(state), &is_nil/1) do
+        if done?(state) do
           {:halt, output}
         else
           {:cont, {output, state}}
@@ -60,29 +63,33 @@ defmodule Advent2019.Day7 do
     |> Enum.max()
   end
 
-  defp process_phase(phases, initial, {previous_output, state}) do
-    Enum.reduce(phases, {previous_output, state}, fn phase, {previous_output, state} ->
-      {input, {result, instruction_pointer}} =
-        if Map.has_key?(state, phase) do
-          {previous_output, Map.get(state, phase)}
-        else
-          {[phase, previous_output], {initial, 0}}
-        end
+  defp done?(state) do
+    state
+    |> Map.values()
+    |> Enum.any?(&is_nil/1)
+  end
 
-      case Advent2019.Opcode.process_opcode(
-             result,
-             instruction_pointer,
-             input,
-             [previous_output],
-             true
-           ) do
-        {_, [output | _]} ->
-          {output, Map.put(state, phase, nil)}
-
-        {result, instruction_pointer, output} ->
-          {output, Map.put(state, phase, {result, instruction_pointer})}
+  defp process_phase(phase, initial, previous_output, state) do
+    {input, {result, instruction_pointer}} =
+      if Map.has_key?(state, phase) do
+        {previous_output, Map.get(state, phase)}
+      else
+        {[phase, previous_output], {initial, 0}}
       end
-    end)
+
+    case Advent2019.Opcode.process_opcode(
+           result,
+           instruction_pointer,
+           input,
+           [previous_output],
+           true
+         ) do
+      {_, [output | _]} ->
+        {output, Map.put(state, phase, nil)}
+
+      {result, instruction_pointer, output} ->
+        {output, Map.put(state, phase, {result, instruction_pointer})}
+    end
   end
 
   defp input() do
