@@ -11,22 +11,24 @@ defmodule Advent2019.Day7 do
   """
   def part1(input \\ input()) do
     {_, max} =
-      for phase1 <- 0..4,
-          phase2 <- 0..4,
-          phase3 <- 0..4,
-          phase4 <- 0..4,
-          phase5 <- 0..4 do
-        phases = [phase1, phase2, phase3, phase4, phase5]
-
-        {phases, process_phases(phases, input)}
-      end
-      |> Enum.sort_by(fn {_, output} -> output end, &>=/2)
-      |> Enum.filter(fn {phases, _} ->
-        phases |> Enum.uniq() |> Enum.sort() == Enum.sort(phases)
-      end)
+      phases()
+      |> Enum.map(fn phases -> {phases, process_phases(phases, input)} end)
       |> Enum.max_by(fn {_, output} -> output end)
 
     max
+  end
+
+  defp phases() do
+    for phase1 <- 0..4,
+        phase2 <- 0..4,
+        phase3 <- 0..4,
+        phase4 <- 0..4,
+        phase5 <- 0..4 do
+      [phase1, phase2, phase3, phase4, phase5]
+    end
+    |> Enum.filter(fn {phases, _} ->
+      phases |> Enum.uniq() |> Enum.sort() == Enum.sort(phases)
+    end)
   end
 
   def process_phases(phases, input) do
