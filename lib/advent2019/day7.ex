@@ -11,19 +11,19 @@ defmodule Advent2019.Day7 do
   """
   def part1(input \\ input()) do
     {_, max} =
-      phases()
+      phases(0, 4)
       |> Enum.map(fn phases -> {phases, process_phases(phases, input)} end)
       |> Enum.max_by(fn {_, output} -> output end)
 
     max
   end
 
-  defp phases() do
-    for phase1 <- 0..4,
-        phase2 <- 0..4,
-        phase3 <- 0..4,
-        phase4 <- 0..4,
-        phase5 <- 0..4 do
+  defp phases(min, max) do
+    for phase1 <- min..max,
+        phase2 <- min..max,
+        phase3 <- min..max,
+        phase4 <- min..max,
+        phase5 <- min..max do
       [phase1, phase2, phase3, phase4, phase5]
     end
     |> Enum.filter(fn {phases, _} ->
@@ -43,7 +43,7 @@ defmodule Advent2019.Day7 do
   end
 
   def part2(input \\ input()) do
-    0
+    phases(5, 9)
   end
 
   defp input() do
