@@ -3,7 +3,7 @@ defmodule Advent2019.Day5 do
     {_, [diagnostic_code | _]} =
       input
       |> Advent2019.Utils.to_indexed_map()
-      |> Advent2019.Opcode.process_opcode(0)
+      |> Advent2019.Opcode.process_opcode()
 
     diagnostic_code
   end
@@ -12,7 +12,7 @@ defmodule Advent2019.Day5 do
     {_, [diagnostic_code | _]} =
       input
       |> Advent2019.Utils.to_indexed_map()
-      |> Advent2019.Opcode.process_opcode(0, 5)
+      |> Advent2019.Opcode.process_opcode(5)
 
     diagnostic_code
   end

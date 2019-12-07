@@ -1,5 +1,9 @@
 defmodule Advent2019.Opcode do
-  def process_opcode(result, instruction_pointer, input \\ 1, output \\ []) do
+  def process_opcode(initial, input \\ 1) do
+    process_opcode(initial, 0, input, [], false)
+  end
+
+  def process_opcode(result, instruction_pointer, input, output, interrupt?) do
     case opcode(result, instruction_pointer) do
       [1 = _add, _param3_mode, param2_mode, param1_mode] ->
         value_1 = value(result, instruction_pointer + 1, param1_mode)
@@ -8,7 +12,7 @@ defmodule Advent2019.Opcode do
 
         result
         |> Map.put(destination, value_1 + value_2)
-        |> process_opcode(instruction_pointer + 4, input, output)
+        |> process_opcode(instruction_pointer + 4, input, output, interrupt?)
 
       [2 = _multiply, _param3_mode, param2_mode, param1_mode] ->
         value_1 = value(result, instruction_pointer + 1, param1_mode)
@@ -17,7 +21,7 @@ defmodule Advent2019.Opcode do
 
         result
         |> Map.put(destination, value_1 * value_2)
-        |> process_opcode(instruction_pointer + 4, input, output)
+        |> process_opcode(instruction_pointer + 4, input, output, interrupt?)
 
       [3 = _store, _, _, _] ->
         destination = Map.get(result, instruction_pointer + 1)
@@ -25,20 +29,25 @@ defmodule Advent2019.Opcode do
 
         result
         |> Map.put(destination, input)
-        |> process_opcode(instruction_pointer + 2, remaining_input, output)
+        |> process_opcode(instruction_pointer + 2, remaining_input, output, interrupt?)
 
       [4 = _output, _, _, param1_mode] ->
         value = value(result, instruction_pointer + 1, param1_mode)
-        process_opcode(result, instruction_pointer + 2, input, [value | output])
+
+        if interrupt? do
+          {result, instruction_pointer + 2, value}
+        else
+          process_opcode(result, instruction_pointer + 2, input, [value | output], interrupt?)
+        end
 
       [5 = _jump_if_true, _, param2_mode, param1_mode] ->
         condition = value(result, instruction_pointer + 1, param1_mode)
 
         if condition == 0 do
-          process_opcode(result, instruction_pointer + 3, input, output)
+          process_opcode(result, instruction_pointer + 3, input, output, interrupt?)
         else
           jump_pointer = value(result, instruction_pointer + 2, param2_mode)
-          process_opcode(result, jump_pointer, input, output)
+          process_opcode(result, jump_pointer, input, output, interrupt?)
         end
 
       [6 = _jump_if_false, _, param2_mode, param1_mode] ->
@@ -46,9 +55,9 @@ defmodule Advent2019.Opcode do
 
         if condition == 0 do
           jump_pointer = value(result, instruction_pointer + 2, param2_mode)
-          process_opcode(result, jump_pointer, input, output)
+          process_opcode(result, jump_pointer, input, output, interrupt?)
         else
-          process_opcode(result, instruction_pointer + 3, input, output)
+          process_opcode(result, instruction_pointer + 3, input, output, interrupt?)
         end
 
       [7 = _less_than, _, param2_mode, param1_mode] ->
@@ -65,7 +74,7 @@ defmodule Advent2019.Opcode do
 
         result
         |> Map.put(destination, value)
-        |> process_opcode(instruction_pointer + 4, input, output)
+        |> process_opcode(instruction_pointer + 4, input, output, interrupt?)
 
       [8 = _equals, _, param2_mode, param1_mode] ->
         value_1 = value(result, instruction_pointer + 1, param1_mode)
@@ -81,9 +90,11 @@ defmodule Advent2019.Opcode do
 
         result
         |> Map.put(destination, value)
-        |> process_opcode(instruction_pointer + 4, input, output)
+        |> process_opcode(instruction_pointer + 4, input, output, interrupt?)
 
       [99, _, _, _] ->
+          # IO.inspect result
+
         {Map.get(result, 0), output}
     end
   end
@@ -106,7 +117,8 @@ defmodule Advent2019.Opcode do
 
   defp opcode(result, instruction_pointer) do
     [param3_mode, param2_mode, param1_mode, code1, code2] =
-      result[instruction_pointer]
+      result
+      |> Map.get(instruction_pointer)
       |> to_string()
       |> String.pad_leading(5, "0")
       |> String.split("", trim: true)

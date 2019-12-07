@@ -10,15 +10,19 @@ defmodule Advent2019.Day7 do
       65210
   """
   def part1(input \\ input()) do
-    {_, max} =
-      phases(0, 4)
-      |> Enum.map(fn phases -> {phases, process_phases(phases, input)} end)
-      |> Enum.max_by(fn {_, output} -> output end)
+    initial = Advent2019.Utils.to_indexed_map(input)
 
-    max
+    phases(0, 4)
+    |> Enum.map(fn phases ->
+      Enum.reduce(phases, 0, fn phase, previous_output ->
+        {_, [output | _]} = Advent2019.Opcode.process_opcode(initial, [phase, previous_output])
+        output
+      end)
+    end)
+    |> Enum.max()
   end
 
-  def phases(min, max) do
+  defp phases(min, max) do
     for phase1 <- min..max,
         phase2 <- min..max,
         phase3 <- min..max,
@@ -30,19 +34,55 @@ defmodule Advent2019.Day7 do
     end
   end
 
-  def process_phases(phases, input) do
-    Enum.reduce(phases, 0, fn phase, previous_output ->
-      {_, [output | _]} =
-        input
-        |> Advent2019.Utils.to_indexed_map()
-        |> Advent2019.Opcode.process_opcode(0, [phase, previous_output])
+  @doc """
+      iex> Advent2019.Day7.part2([3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26, 27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5])
+      139629729
 
-      output
+      iex> Advent2019.Day7.part2([3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,-5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10])
+      18216
+  """
+  def part2(input \\ input()) do
+    initial = Advent2019.Utils.to_indexed_map(input)
+
+    phases(5, 9)
+    |> Enum.map(fn phases ->
+      Stream.repeatedly(fn -> phases end)
+      |> Enum.reduce_while({0, %{}}, fn phases, {previous_output, state} ->
+        {output, state} = process_phase(phases, initial, {previous_output, state})
+
+        if Enum.any?(Map.values(state), &is_nil/1) do
+          {:halt, output}
+        else
+          {:cont, {output, state}}
+        end
+      end)
     end)
+    |> Enum.max()
   end
 
-  def part2(input \\ input()) do
-    phases(5, 9)
+  defp process_phase(phases, initial, {previous_output, state}) do
+    Enum.reduce(phases, {previous_output, state}, fn phase, {previous_output, state} ->
+      {input, {result, instruction_pointer}} =
+        if Map.has_key?(state, phase) do
+          {previous_output, Map.get(state, phase)}
+        else
+          {[phase, previous_output], {initial, 0}}
+        end
+
+      case Advent2019.Opcode.process_opcode(
+             result,
+             instruction_pointer,
+             input,
+             [previous_output],
+             true
+           ) do
+        {_, [output | _]} ->
+          {output, Map.put(state, phase, nil)}
+
+        {result, instruction_pointer, output} ->
+          {output, Map.put(state, phase, {result, instruction_pointer})}
+      end
+    end)
   end
 
   defp input() do

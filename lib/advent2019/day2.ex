@@ -19,7 +19,7 @@ defmodule Advent2019.Day2 do
     {result, _} =
       input
       |> Advent2019.Utils.to_indexed_map()
-      |> Advent2019.Opcode.process_opcode(0)
+      |> Advent2019.Opcode.process_opcode()
 
     result
   end
