@@ -1,17 +1,17 @@
 defmodule Advent2019.Day8 do
-  def part1(input \\ input(25, 6)) do
-    row =
-      Enum.min_by(input, fn chunk ->
-        row_count(chunk, 0)
-      end)
+  @width 25
+  @height 6
+
+  def part1(input \\ input()) do
+    row = Enum.min_by(input, fn chunk -> row_count(chunk, 0) end)
 
     row_count(row, 1) * row_count(row, 2)
   end
 
-  def part2(input \\ input(25, 6)) do
+  def part2(input \\ input()) do
     input
     |> Enum.reverse()
-    |> Enum.reduce(List.duplicate(2, 25 * 6), fn chunk, pixels ->
+    |> Enum.reduce(List.duplicate(2, @width * @height), fn chunk, pixels ->
       chunk
       |> Enum.zip(pixels)
       |> Enum.map(fn {top, bottom} ->
@@ -22,12 +22,12 @@ defmodule Advent2019.Day8 do
         end
       end)
     end)
-    |> Enum.chunk_every(25)
+    |> Enum.chunk_every(@width)
     |> Enum.map_join("\n", fn chunk ->
-      Enum.map_join(chunk, "", fn n ->
+      Enum.map_join(chunk, "  ", fn n ->
         case n do
-          0 -> " _ "
-          1 -> " X "
+          0 -> "_"
+          1 -> "X"
         end
       end)
     end)
@@ -40,12 +40,12 @@ defmodule Advent2019.Day8 do
     |> Enum.count()
   end
 
-  defp input(width, height) do
+  defp input() do
     "day8.txt"
     |> Advent2019.Utils.priv_file()
     |> String.trim()
     |> String.split("", trim: true)
-    |> Enum.chunk_every(width * height)
+    |> Enum.chunk_every(@width * @height)
     |> Enum.map(fn digits ->
       Enum.map(digits, fn n ->
         n
