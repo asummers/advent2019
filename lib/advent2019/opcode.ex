@@ -96,9 +96,9 @@ defmodule Advent2019.Opcode do
     condition = value(state, instruction_pointer + 1, param1_mode)
 
     if condition == 0 do
-      instruction_pointer + 3
-    else
       value(state, instruction_pointer + 2, param2_mode)
+    else
+      instruction_pointer + 3
     end
   end
 
