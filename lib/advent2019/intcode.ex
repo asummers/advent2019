@@ -1,28 +1,28 @@
-defmodule Advent2019.Opcode do
-  def process_opcode(initial, input \\ 1) do
-    process_opcode(initial, 0, input, [], false, 0)
+defmodule Advent2019.Intcode do
+  def process_intcode(initial, input \\ 1) do
+    process_intcode(initial, 0, input, [], false, 0)
   end
 
-  def process_opcode(state, instruction_pointer, input, output, interrupt?, relative_base) do
-    [opcode, param3_mode, param2_mode, param1_mode] = opcode(state, instruction_pointer)
+  def process_intcode(state, instruction_pointer, input, output, interrupt?, relative_base) do
+    [opcode, param3_mode, param2_mode, param1_mode] = decode_opcode(state, instruction_pointer)
 
     case opcode do
       1 ->
         state
         |> add(instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base)
-        |> process_opcode(instruction_pointer + 4, input, output, interrupt?, relative_base)
+        |> process_intcode(instruction_pointer + 4, input, output, interrupt?, relative_base)
 
       2 ->
         state
         |> multiply(instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base)
-        |> process_opcode(instruction_pointer + 4, input, output, interrupt?, relative_base)
+        |> process_intcode(instruction_pointer + 4, input, output, interrupt?, relative_base)
 
       3 ->
         {input, remaining_input} = input(input)
 
         state
         |> store(instruction_pointer, input, param1_mode, relative_base)
-        |> process_opcode(
+        |> process_intcode(
           instruction_pointer + 2,
           remaining_input,
           output,
@@ -36,7 +36,7 @@ defmodule Advent2019.Opcode do
         if interrupt? do
           {state, instruction_pointer + 2, value}
         else
-          process_opcode(
+          process_intcode(
             state,
             instruction_pointer + 2,
             input,
@@ -56,7 +56,7 @@ defmodule Advent2019.Opcode do
             relative_base
           )
 
-        process_opcode(state, jump_pointer, input, output, interrupt?, relative_base)
+        process_intcode(state, jump_pointer, input, output, interrupt?, relative_base)
 
       6 ->
         jump_pointer =
@@ -68,23 +68,23 @@ defmodule Advent2019.Opcode do
             relative_base
           )
 
-        process_opcode(state, jump_pointer, input, output, interrupt?, relative_base)
+        process_intcode(state, jump_pointer, input, output, interrupt?, relative_base)
 
       7 ->
         state
         |> less_than(instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base)
-        |> process_opcode(instruction_pointer + 4, input, output, interrupt?, relative_base)
+        |> process_intcode(instruction_pointer + 4, input, output, interrupt?, relative_base)
 
       8 ->
         state
         |> equals(instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base)
-        |> process_opcode(instruction_pointer + 4, input, output, interrupt?, relative_base)
+        |> process_intcode(instruction_pointer + 4, input, output, interrupt?, relative_base)
 
       9 ->
         new_relative_base =
           value(state, instruction_pointer + 1, param1_mode, relative_base) + relative_base
 
-        process_opcode(
+        process_intcode(
           state,
           instruction_pointer + 2,
           input,
@@ -211,7 +211,7 @@ defmodule Advent2019.Opcode do
     Map.get(state, position) + relative_base
   end
 
-  defp opcode(state, instruction_pointer) do
+  defp decode_opcode(state, instruction_pointer) do
     [param3_mode, param2_mode, param1_mode, code1, code2] =
       state
       |> Map.get(instruction_pointer)

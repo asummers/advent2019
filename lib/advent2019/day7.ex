@@ -15,7 +15,7 @@ defmodule Advent2019.Day7 do
     phases(0, 4)
     |> Enum.map(fn phases ->
       Enum.reduce(phases, 0, fn phase, previous_output ->
-        {_, [output | _]} = Advent2019.Opcode.process_opcode(initial, [phase, previous_output])
+        {_, [output | _]} = Advent2019.Intcode.process_intcode(initial, [phase, previous_output])
         output
       end)
     end)
@@ -77,7 +77,7 @@ defmodule Advent2019.Day7 do
         {[phase, previous_output], {initial, 0}}
       end
 
-    case Advent2019.Opcode.process_opcode(
+    case Advent2019.Intcode.process_intcode(
            result,
            instruction_pointer,
            input,

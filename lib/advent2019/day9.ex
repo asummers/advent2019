@@ -12,14 +12,14 @@ defmodule Advent2019.Day9 do
   def part1(input \\ input()) do
     initial = Advent2019.Utils.to_indexed_map(input)
 
-    {_, [output | _]} = Advent2019.Opcode.process_opcode(initial, 0, 1, [], false, 0)
+    {_, [output | _]} = Advent2019.Intcode.process_intcode(initial, 0, 1, [], false, 0)
     output
   end
 
   def part2(input \\ input()) do
     initial = Advent2019.Utils.to_indexed_map(input)
 
-    {_, [output | _]} = Advent2019.Opcode.process_opcode(initial, 0, 2, [], false, 0)
+    {_, [output | _]} = Advent2019.Intcode.process_intcode(initial, 0, 2, [], false, 0)
     output
   end
 
