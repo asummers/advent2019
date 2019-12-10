@@ -82,7 +82,8 @@ defmodule Advent2019.Day7 do
            instruction_pointer,
            input,
            [previous_output],
-           true
+           true,
+           0
          ) do
       {_, [output | _]} ->
         {output, Map.put(state, phase, nil)}
