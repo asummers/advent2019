@@ -101,23 +101,23 @@ defmodule Advent2019.Opcode do
   defp add(state, instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base) do
     value_1 = value(state, instruction_pointer + 1, param1_mode, relative_base)
     value_2 = value(state, instruction_pointer + 2, param2_mode, relative_base)
-    destination = destination(state, instruction_pointer + 3, param3_mode, relative_base)
+    address = address(state, instruction_pointer + 3, param3_mode, relative_base)
 
-    Map.put(state, destination, value_1 + value_2)
+    Map.put(state, address, value_1 + value_2)
   end
 
   defp multiply(state, instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base) do
     value_1 = value(state, instruction_pointer + 1, param1_mode, relative_base)
     value_2 = value(state, instruction_pointer + 2, param2_mode, relative_base)
-    destination = destination(state, instruction_pointer + 3, param3_mode, relative_base)
+    address = address(state, instruction_pointer + 3, param3_mode, relative_base)
 
-    Map.put(state, destination, value_1 * value_2)
+    Map.put(state, address, value_1 * value_2)
   end
 
   defp store(state, instruction_pointer, input, param1_mode, relative_base) do
-    destination = destination(state, instruction_pointer + 1, param1_mode, relative_base)
+    address = address(state, instruction_pointer + 1, param1_mode, relative_base)
 
-    Map.put(state, destination, input)
+    Map.put(state, address, input)
   end
 
   defp jump_if_true_jump_pointer(
@@ -155,7 +155,7 @@ defmodule Advent2019.Opcode do
   defp less_than(state, instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base) do
     value_1 = value(state, instruction_pointer + 1, param1_mode, relative_base)
     value_2 = value(state, instruction_pointer + 2, param2_mode, relative_base)
-    destination = destination(state, instruction_pointer + 3, param3_mode, relative_base)
+    address = address(state, instruction_pointer + 3, param3_mode, relative_base)
 
     value =
       if value_1 < value_2 do
@@ -164,13 +164,13 @@ defmodule Advent2019.Opcode do
         0
       end
 
-    Map.put(state, destination, value)
+    Map.put(state, address, value)
   end
 
   defp equals(state, instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base) do
     value_1 = value(state, instruction_pointer + 1, param1_mode, relative_base)
     value_2 = value(state, instruction_pointer + 2, param2_mode, relative_base)
-    destination = destination(state, instruction_pointer + 3, param3_mode, relative_base)
+    address = address(state, instruction_pointer + 3, param3_mode, relative_base)
 
     value =
       if value_1 == value_2 do
@@ -179,7 +179,7 @@ defmodule Advent2019.Opcode do
         0
       end
 
-    Map.put(state, destination, value)
+    Map.put(state, address, value)
   end
 
   defp quit(state, output) do
@@ -194,24 +194,21 @@ defmodule Advent2019.Opcode do
     {first, first}
   end
 
-  defp value(state, position, 0 = _position_mode, _relative_base) do
-    Map.get(state, state[position], 0)
+  defp value(state, position, mode, relative_base) do
+    address = address(state, position, mode, relative_base)
+    Map.get(state, address, 0)
   end
 
-  defp value(state, position, 1 = _immediate_mode, _relative_base) do
-    Map.get(state, position, 0)
+  defp address(state, position, 0 = _position_mode, _relative_base) do
+    Map.get(state, position)
   end
 
-  defp value(state, position, 2 = _relative_mode, relative_base) do
-    Map.get(state, state[position] + relative_base, 0)
+  defp address(_state, position, 1 = _immediate_mode, _relative_base) do
+    position
   end
 
-  defp destination(state, position, mode, relative_base) do
-    if mode == 2 do
-      Map.get(state, position) + relative_base
-    else
-      Map.get(state, position)
-    end
+  defp address(state, position, 2 = _relative_mode, relative_base) do
+    Map.get(state, position) + relative_base
   end
 
   defp opcode(state, instruction_pointer) do
