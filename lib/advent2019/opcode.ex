@@ -4,17 +4,17 @@ defmodule Advent2019.Opcode do
   end
 
   def process_opcode(state, instruction_pointer, input, output, interrupt?, relative_base) do
-    [opcode, _param3_mode, param2_mode, param1_mode] = opcode(state, instruction_pointer)
+    [opcode, param3_mode, param2_mode, param1_mode] = opcode(state, instruction_pointer)
 
     case opcode do
       1 ->
         state
-        |> add(instruction_pointer, param1_mode, param2_mode, relative_base)
+        |> add(instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base)
         |> process_opcode(instruction_pointer + 4, input, output, interrupt?, relative_base)
 
       2 ->
         state
-        |> multiply(instruction_pointer, param1_mode, param2_mode, relative_base)
+        |> multiply(instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base)
         |> process_opcode(instruction_pointer + 4, input, output, interrupt?, relative_base)
 
       3 ->
@@ -22,7 +22,13 @@ defmodule Advent2019.Opcode do
 
         state
         |> store(instruction_pointer, input, param1_mode, relative_base)
-        |> process_opcode(instruction_pointer + 2, remaining_input, output, interrupt?, relative_base)
+        |> process_opcode(
+          instruction_pointer + 2,
+          remaining_input,
+          output,
+          interrupt?,
+          relative_base
+        )
 
       4 = _output ->
         value = value(state, instruction_pointer + 1, param1_mode, relative_base)
@@ -30,72 +36,97 @@ defmodule Advent2019.Opcode do
         if interrupt? do
           {state, instruction_pointer + 2, value}
         else
-          process_opcode(state, instruction_pointer + 2, input, [value | output], interrupt?, relative_base)
+          process_opcode(
+            state,
+            instruction_pointer + 2,
+            input,
+            [value | output],
+            interrupt?,
+            relative_base
+          )
         end
 
       5 ->
         jump_pointer =
-          jump_if_true_jump_pointer(state, instruction_pointer, param1_mode, param2_mode, relative_base)
+          jump_if_true_jump_pointer(
+            state,
+            instruction_pointer,
+            param1_mode,
+            param2_mode,
+            relative_base
+          )
 
         process_opcode(state, jump_pointer, input, output, interrupt?, relative_base)
 
       6 ->
         jump_pointer =
-          jump_if_false_jump_pointer(state, instruction_pointer, param1_mode, param2_mode, relative_base)
+          jump_if_false_jump_pointer(
+            state,
+            instruction_pointer,
+            param1_mode,
+            param2_mode,
+            relative_base
+          )
 
         process_opcode(state, jump_pointer, input, output, interrupt?, relative_base)
 
       7 ->
         state
-        |> less_than(instruction_pointer, param1_mode, param2_mode, relative_base)
+        |> less_than(instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base)
         |> process_opcode(instruction_pointer + 4, input, output, interrupt?, relative_base)
 
       8 ->
         state
-        |> equals(instruction_pointer, param1_mode, param2_mode, relative_base)
+        |> equals(instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base)
         |> process_opcode(instruction_pointer + 4, input, output, interrupt?, relative_base)
 
       9 ->
-        new_relative_base = value(state, instruction_pointer + 1, param1_mode, relative_base) + relative_base
-        process_opcode(state, instruction_pointer + 2, input, output, interrupt?, new_relative_base)
+        new_relative_base =
+          value(state, instruction_pointer + 1, param1_mode, relative_base) + relative_base
+
+        process_opcode(
+          state,
+          instruction_pointer + 2,
+          input,
+          output,
+          interrupt?,
+          new_relative_base
+        )
 
       99 ->
         quit(state, output)
     end
   end
 
-  defp add(state, instruction_pointer, param1_mode, param2_mode, relative_base) do
+  defp add(state, instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base) do
     value_1 = value(state, instruction_pointer + 1, param1_mode, relative_base)
     value_2 = value(state, instruction_pointer + 2, param2_mode, relative_base)
-    destination = Map.get(state, instruction_pointer + 3)
+    destination = destination(state, instruction_pointer + 3, param3_mode, relative_base)
 
     Map.put(state, destination, value_1 + value_2)
   end
 
-  defp multiply(state, instruction_pointer, param1_mode, param2_mode, relative_base) do
+  defp multiply(state, instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base) do
     value_1 = value(state, instruction_pointer + 1, param1_mode, relative_base)
     value_2 = value(state, instruction_pointer + 2, param2_mode, relative_base)
-    destination = Map.get(state, instruction_pointer + 3)
+    destination = destination(state, instruction_pointer + 3, param3_mode, relative_base)
 
     Map.put(state, destination, value_1 * value_2)
   end
 
   defp store(state, instruction_pointer, input, param1_mode, relative_base) do
-    destination =
-      if param1_mode == 2 do
-        # IO.inspect state[26]
-        # IO.inspect relative_base
-        # IO.inspect instruction_pointer + 1, label: "instruction ptr"
-
-        value(state, instruction_pointer + 1, param1_mode, relative_base)
-      else
-        Map.get(state, instruction_pointer + 1)
-      end
+    destination = destination(state, instruction_pointer + 1, param1_mode, relative_base)
 
     Map.put(state, destination, input)
   end
 
-  defp jump_if_true_jump_pointer(state, instruction_pointer, param1_mode, param2_mode, relative_base) do
+  defp jump_if_true_jump_pointer(
+         state,
+         instruction_pointer,
+         param1_mode,
+         param2_mode,
+         relative_base
+       ) do
     condition = value(state, instruction_pointer + 1, param1_mode, relative_base)
 
     if condition == 0 do
@@ -105,7 +136,13 @@ defmodule Advent2019.Opcode do
     end
   end
 
-  defp jump_if_false_jump_pointer(state, instruction_pointer, param1_mode, param2_mode, relative_base) do
+  defp jump_if_false_jump_pointer(
+         state,
+         instruction_pointer,
+         param1_mode,
+         param2_mode,
+         relative_base
+       ) do
     condition = value(state, instruction_pointer + 1, param1_mode, relative_base)
 
     if condition == 0 do
@@ -115,10 +152,10 @@ defmodule Advent2019.Opcode do
     end
   end
 
-  defp less_than(state, instruction_pointer, param1_mode, param2_mode, relative_base) do
+  defp less_than(state, instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base) do
     value_1 = value(state, instruction_pointer + 1, param1_mode, relative_base)
     value_2 = value(state, instruction_pointer + 2, param2_mode, relative_base)
-    destination = Map.get(state, instruction_pointer + 3)
+    destination = destination(state, instruction_pointer + 3, param3_mode, relative_base)
 
     value =
       if value_1 < value_2 do
@@ -130,10 +167,10 @@ defmodule Advent2019.Opcode do
     Map.put(state, destination, value)
   end
 
-  defp equals(state, instruction_pointer, param1_mode, param2_mode, relative_base) do
+  defp equals(state, instruction_pointer, param1_mode, param2_mode, param3_mode, relative_base) do
     value_1 = value(state, instruction_pointer + 1, param1_mode, relative_base)
     value_2 = value(state, instruction_pointer + 2, param2_mode, relative_base)
-    destination = Map.get(state, instruction_pointer + 3)
+    destination = destination(state, instruction_pointer + 3, param3_mode, relative_base)
 
     value =
       if value_1 == value_2 do
@@ -167,6 +204,14 @@ defmodule Advent2019.Opcode do
 
   defp value(state, position, 2 = _relative_mode, relative_base) do
     Map.get(state, state[position] + relative_base, 0)
+  end
+
+  defp destination(state, position, mode, relative_base) do
+    if mode == 2 do
+      Map.get(state, position) + relative_base
+    else
+      Map.get(state, position)
+    end
   end
 
   defp opcode(state, instruction_pointer) do
