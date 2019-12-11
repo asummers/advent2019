@@ -2,10 +2,7 @@ defmodule Advent2019.Day10 do
   def part1(input \\ input()) do
     asteroids = find_asteroids(input)
 
-    {_position, count} =
-      asteroids
-      |> position_visible_count()
-      |> Enum.max_by(fn {_, count} -> count end)
+    {_position, count} = position_visible_count(asteroids)
 
     count
   end
@@ -13,46 +10,46 @@ defmodule Advent2019.Day10 do
   def part2(input \\ input()) do
     asteroids = find_asteroids(input)
 
-    {point, _count} =
-      asteroids
-      |> position_visible_count()
-      |> Enum.max_by(fn {_, count} -> count end)
-
-    sorted =
-      asteroids
-      |> Enum.reject(fn asteroid_position -> asteroid_position == point end)
-      |> Enum.group_by(fn {x, y} -> bearing(point, x, y) end)
-      |> Map.new(fn {radians_from_north, points} ->
-        {radians_from_north, Enum.sort_by(points, &distance_from_point(point, &1))}
-      end)
+    {point, _count} = position_visible_count(asteroids)
 
     {x, y} =
-      sorted
+      asteroids
+      |> asteroids_by_bearing(point)
       |> destroy_lasers([])
       |> Enum.at(199)
 
     x * 100 + y
   end
 
-  defp destroy_lasers(sorted, previously_destroyed) when map_size(sorted) == 0 do
+  defp asteroids_by_bearing(asteroids, point) do
+    asteroids
+    |> Enum.reject(fn asteroid_position -> asteroid_position == point end)
+    |> Enum.group_by(fn {x, y} -> bearing(point, x, y) end)
+    |> Map.new(fn {radians_from_north, points} ->
+      {radians_from_north, Enum.sort_by(points, &distance_from_point(point, &1))}
+    end)
+  end
+
+  defp destroy_lasers(asteroids, previously_destroyed) when map_size(asteroids) == 0 do
     Enum.reverse(previously_destroyed)
   end
 
-  defp destroy_lasers(sorted, previously_destroyed) do
+  defp destroy_lasers(asteroids, previously_destroyed) do
     {new_sorted, destroyed} =
-      sorted
+      asteroids
       |> Enum.sort_by(fn {radians_from_north, _} -> radians_from_north end)
-      |> Enum.reduce({sorted, previously_destroyed}, fn {radians_from_north, [point | _]},
-                                                        {new_sorted, previously_destroyed} ->
-        new_sorted = Map.update!(new_sorted, radians_from_north, &tl/1)
-
-        {new_sorted, [point | previously_destroyed]}
-      end)
+      |> Enum.reduce({asteroids, previously_destroyed}, &destroy/2)
 
     new_sorted
     |> Enum.reject(fn {_, remaining} -> Enum.empty?(remaining) end)
     |> Map.new()
     |> destroy_lasers(destroyed)
+  end
+
+  defp destroy({radians_from_north, [point | _]}, {state, previously_destroyed}) do
+    new_state = Map.update!(state, radians_from_north, &tl/1)
+
+    {new_state, [point | previously_destroyed]}
   end
 
   defp bearing(point, x, y) do
@@ -82,7 +79,8 @@ defmodule Advent2019.Day10 do
   end
 
   defp position_visible_count(asteroids) do
-    Enum.map(asteroids, fn starting_position ->
+    asteroids
+    |> Enum.map(fn starting_position ->
       without_start =
         Enum.reject(asteroids, fn asteroid_position ->
           asteroid_position == starting_position
@@ -95,6 +93,7 @@ defmodule Advent2019.Day10 do
 
       {starting_position, count}
     end)
+    |> Enum.max_by(fn {_, count} -> count end)
   end
 
   defp find_asteroids(input) do
